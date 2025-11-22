@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Haven</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2a4365',
+                        secondary: '#4299e1',
+                        accent: '#f6ad55',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-in': 'slideIn 0.5s ease-in-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideIn: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Glass Effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+
+        .glass-dark {
+            background: rgba(40, 40, 70, 0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+
+        /* Carousel Styles */
+        .carousel {
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+        }
+
+
+        .carousel-item {
+            scroll-snap-align: start;
+        }
+
+
+        /* Moving background effect */
+        @keyframes gradientBackground {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+
+        .animated-bg {
+            background: linear-gradient(120deg, #f6d365 0%, #fda085 25%, #f6d365 50%, #fda085 75%, #f6d365 100%);
+            background-size: 200% 200%;
+            animation: gradientBackground 15s ease infinite;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased text-gray-800 animated-bg min-h-screen">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 glass-dark text-white shadow-lg">
+        <div id="home" class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <div class="text-2xl font-bold flex items-center">
+                        <i class="fas fa-book-open mr-2 text-accent"></i>
+                        <span>Book Haven</span>
+                    </div>
+                </div>
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#" class="hover:text-accent transition-colors">Home</a>
+                    <a href="#new-arrivals" class="hover:text-accent transition-colors">New Arrivals</a>
+                    <a href="#bestsellers" class="hover:text-accent transition-colors">Bestsellers</a>
+                    <a href="#footer" class="hover:text-accent transition-colors">Contact</a>
+                </nav>
+                <div class="flex items-center space-x-4">
+                    <a href="#home" class="hover:text-accent transition-colors">
+                        <i class="fas fa-shopping-cart text-xl"></i>
+                    </a>
+                    <a href="#" class="hover:text-accent transition-colors">
+                        <i class="fas fa-user text-xl"></i>
+                    </a>
+                    <button class="md:hidden text-xl focus:outline-none" id="mobile-menu-button">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+
+
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="md:hidden hidden mt-4 pb-2 animate-fade-in">
+                <nav class="flex flex-col space-y-3">
+                    <a href="#" class="hover:text-accent transition-colors">Home</a>
+                    <a href="#new-arrivals" class="hover:text-accent transition-colors">New Arrivals</a>
+                    <a href="#bestsellers" class="hover:text-accent transition-colors">Bestsellers</a>
+                    <a href="#footer" class="hover:text-accent transition-colors">Contact</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+
+    <!-- Search and Filter Bar -->
+    <div id="search-bar" class="container mx-auto px-4 py-6">
+        <div class="glass rounded-xl p-4 shadow-lg animate-fade-in">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-grow">
+                    <div class="relative">
+                        <input type="text" id="search-input" placeholder="Search for books..."
+                            class="w-full py-3 px-4 pr-10 rounded-lg bg-white bg-opacity-20 backdrop-blur-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-secondary">
+                        <button id="search-button" class="absolute right-3 top-3 text-gray-600">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="md:w-1/4">
+                    <select id="genre-filter" class="w-full py-3 px-4 rounded-lg bg-white bg-opacity-20 backdrop-blur-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-secondary appearance-none">
+                        <option value="all">All Genres</option>
+                        <option value="fiction">Fiction</option>
+                        <option value="non-fiction">Non-Fiction</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Featured Books Carousel -->
+    <section id="featured-authors" class="container mx-auto px-4 py-6">
+        <h2 class="text-3xl font-bold mb-6 text-primary">Featured Books</h2>
+
+
+        <div class="relative overflow-hidden rounded-2xl shadow-xl">
+            <!-- Carousel Container -->
+            <div class="carousel flex overflow-x-auto pb-4 hide-scrollbar" id="featured-carousel">
+                <!-- Carousel Items -->
+                <div class="carousel-item min-w-full flex-shrink-0">
+                    <div class="h-80 md:h-96 rounded-2xl overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=1000" alt="Featured Book" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent flex items-end p-6">
+                            <div class="text-white">
+                                <h3 class="text-2xl font-bold">Milk and Honey</h3>
+                                <p class="text-lg">By Rupi Kaur</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item min-w-full flex-shrink-0">
+                    <div class="h-80 md:h-96 rounded-2xl overflow-hidden relative">
+                        <img src="https://miro.medium.com/v2/resize:fit:1400/0*ua1cgt5L4d3nG-4H" alt="Featured Book" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent flex items-end p-6">
+                            <div class="text-white">
+                                <h3 class="text-2xl font-bold">Zero to One</h3>
+                                <p class="text-lg">By Peter Thiel</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item min-w-full flex-shrink-0">
+                    <div class="h-80 md:h-96 rounded-2xl overflow-hidden relative">
+                        <img src="https://m.media-amazon.com/images/I/81+9Gbu0isL._AC_UF350,350_QL80_.jpg" alt="Featured Book" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent flex items-end p-6">
+                            <div class="text-white">
+                                <h3 class="text-2xl font-bold">Atomic Habits</h3>
+                                <p class="text-lg"> By James Clear</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Carousel Controls -->
+            <button class="absolute left-4 top-1/2 -translate-y-1/2 glass p-3 rounded-full text-white" id="carousel-prev">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="absolute right-4 top-1/2 -translate-y-1/2 glass p-3 rounded-full text-white" id="carousel-next">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+
+
+            <!-- Carousel Indicators -->
+            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+                <button class="carousel-dot w-3 h-3 rounded-full bg-white opacity-50 transition-opacity" data-index="0"></button>
+                <button class="carousel-dot w-3 h-3 rounded-full bg-white opacity-50 transition-opacity" data-index="1"></button>
+                <button class="carousel-dot w-3 h-3 rounded-full bg-white opacity-50 transition-opacity" data-index="2"></button>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- New Arrivals Section -->
+    <section id="new-arrivals" class="container mx-auto px-4 py-12">
+        <h2 class="text-3xl font-bold mb-6 text-primary">New Arrivals</h2>
+
+
+        <div id="new-arrivals-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Book cards will be dynamically generated -->
+        </div>
+
+
+        <div class="text-center mt-8">
+            <button class="glass-dark text-white px-6 py-3 rounded-lg hover:bg-opacity-80 transition-all">
+                View All New Arrivals
+            </button>
+        </div>
+    </section>
+
+
+    <!-- Bestsellers Section -->
+    <section id="bestsellers" class="container mx-auto px-4 py-12">
+        <h2 class="text-3xl font-bold mb-6 text-primary">Bestsellers</h2>
+
+
+        <div id="bestsellers-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Book cards will be dynamically generated -->
+        </div>
+
+
+        <div class="text-center mt-8">
+            <button class="glass-dark text-white px-6 py-3 rounded-lg hover:bg-opacity-80 transition-all">
+                View All Bestsellers
+            </button>
+        </div>
+    </section>
+
+
+    <!-- Newsletter Section -->
+    <section class="container mx-auto px-4 py-12">
+        <div class="glass-dark rounded-xl p-8 text-white shadow-xl">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="md:w-1/2">
+                    <h2 class="text-2xl font-bold mb-3">Join Our Book Club</h2>
+                    <p class="mb-4">Subscribe to our newsletter and get exclusive offers, early access to new releases, and personalized recommendations.</p>
+                </div>
+                <div class="md:w-1/2">
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <input type="email" placeholder="Your email address" class="flex-grow py-3 px-4 rounded-lg bg-white bg-opacity-10 backdrop-blur-sm border border-white border-opacity-20 focus:outline-none focus:ring-2 focus:ring-accent text-white">
+                        <button class="bg-accent hover:bg-opacity-80 transition-colors text-white px-6 py-3 rounded-lg font-bold">
+                            Subscribe
+                        </button>
+                    </div>
+                    <p class="text-sm mt-2 text-gray-300">We respect your privacy. Unsubscribe at any time.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Footer -->
+    <footer id="footer" class="glass-dark text-white mt-12">
+        <div class="container mx-auto px-4 py-10">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fas fa-book-open mr-2 text-accent"></i>
+                        <span>Book Haven</span>
+                    </h3>
+                    <p class="mb-4">Your local haven for book lovers since 2010. Discover worlds between pages.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-xl hover:text-accent transition-colors"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-xl hover:text-accent transition-colors"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-xl hover:text-accent transition-colors"><i class="fab fa-x-twitter"></i></a>
+                        <a href="#" class="text-xl hover:text-accent transition-colors"><i class="fab fa-pinterest"></i></a>
+                    </div>
+                </div>
+
+
+                <div>
+                    <h3 class="text-lg font-bold mb-4">Explore</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#new-arrivals" class="hover:text-accent transition-colors">New Arrivals</a></li>
+                        <li><a href="#bestsellers" class="hover:text-accent transition-colors">Bestsellers</a></li>
+                        <li><a href="#featured-authors" class="hover:text-accent transition-colors">Featured Authors</a></li>
+                        <li><a href="#search-bar" class="hover:text-accent transition-colors">Book Categories</a></li>
+                    </ul>
+                </div>
+
+
+                <div>
+                    <h3 class="text-lg font-bold mb-4">Store Information</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker-alt mt-1 mr-3 text-accent"></i>
+                                                    <span>123 Book Street, Literary District, City, 10001</span>
+                                                </li>
+                                                <li class="flex items-start">
+                                                    <i class="fas fa-phone mt-1 mr-3 text-accent"></i>
+                                                    <span>(555) 123-4567</span>
+                                                </li>
+                                                <li class="flex items-start">
+                                                    <i class="fas fa-envelope mt-1 mr-3 text-accent"></i>
+                                                    <span>info@bookhaven.com</span>
+                                                </li>
+                                                <li class="flex items-start">
+                                                    <i class="fas fa-clock mt-1 mr-3 text-accent"></i>
+                                                    <span>
+                                                        Monday-Saturday: 10AM - 8PM<br>
+                                                        Sunday: 12PM - 6PM
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+
+            <div class="border-t border-gray-600 mt-10 pt-6 flex flex-col md:flex-row justify-center items-center">
+                <div class="mb-4 md:mb-0">
+                    <p>© 2025 Book Haven. All rights reserved.</p>
+                </div>
+            </div>
+                                </div>
+                            </footer>
+
+
+                            <!-- JavaScript -->
+                            <script>
+                                // Book Database
+                                const books = [
+                                    {
+                                        id: 1,
+                                        title: "Life of Pi",
+                                        author: "Yann Martel",
+                                        genre: "fiction",
+                                        price: 19.99,
+                                        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ2ypFZZ_URTwvxtqYPhzZHDcjI_6sxjYqDvA&s",
+                                        isNewArrival: true,
+                                        isBestseller: false,
+                                        rank: null
+                                    },
+                                    {
+                                        id: 2,
+                                        title: "Milk and Honey",
+                                        author: "Rupi Kaur",
+                                        genre: "fiction",
+                                        price: 21.99,
+                                        image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=1000",
+                                        isNewArrival: true,
+                                        isBestseller: false,
+                                        rank: null
+                                    },
+                                    {
+                                        id: 3,
+                                        title: "The Alchemist",
+                                        author: "Paulo Coelho",
+                                        genre: "fiction",
+                                        price: 17.99,
+                                        image: "data:image/jpeg;base64,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",
+                                        isNewArrival: false,
+                                        isBestseller: true,
+                                        rank: 4
+                                        },
+                                        {
+                                        id: 4,
+                                        title: "Zero to One",
+                                        author: "Peter Thiel",
+                                        genre: "non-fiction",
+                                        price: 22.99,
+                                        image: "https://miro.medium.com/v2/resize:fit:1400/0*ua1cgt5L4d3nG-4H",
+                                        isNewArrival: false,
+                                        isBestseller: true,
+                                        rank: 2
+                                        },
+                                        {
+                                        id: 5,
+                                        title: "Sapiens",
+                                        author: "Yuval Noah Harari",
+                                        genre: "non-fiction",
+                                        price: 24.99,
+                                        image: "https://i0.wp.com/sbcstore.in/wp-content/uploads/2023/09/sapiens.jpg?fit=2427%2C2509&ssl=1",
+                                        isNewArrival: true,
+                                        isBestseller: false,
+                                        rank: null
+                                        },
+                                        {
+                                        id: 6,
+                                        title: "Deep Work",
+                                        author: "Cal Newport",
+                                        genre: "non-fiction",
+                                        price: 29.99,
+                                        image: "https://assets.upstox.com/content/web-stories/business-news/latest-updates/7-lessons-from-deep-work-by-cal-newport/webstory-158306/assets/5.jpeg",
+                                        isNewArrival: true,
+                                        isBestseller: false,
+                                        rank: null
+                                        },
+                                        {
+                                        id: 7,
+                                        title: "Atomic Habits",
+                                        author: "James Clear",
+                                        genre: "non-fiction",
+                                        price: 18.99,
+                                        image: "https://m.media-amazon.com/images/I/81+9Gbu0isL._AC_UF350,350_QL80_.jpg",
+                                        isNewArrival: false,
+                                        isBestseller: true,
+                                        rank: 1
+                                        },
+                                        {
+                                        id: 8,
+                                        title: "How Innovation Works",
+                                        author: "Matt Ridley",
+                                        genre: "non-fiction",
+                                        price: 20.99,
+                                        image: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=1000",
+                                        isNewArrival: false,
+                                        isBestseller: true,
+                                        rank: 3
+                                        }
+                                        ];
+
+
+                                        // Mobile Menu Toggle
+                                        const mobileMenuButton = document.getElementById('mobile-menu-button');
+                                        const mobileMenu = document.getElementById('mobile-menu');
+
+
+                                        mobileMenuButton.addEventListener('click', () => {
+                                        mobileMenu.classList.toggle('hidden');
+                                        });
+
+
+                                        // Carousel Functionality
+                                        const carousel = document.getElementById('featured-carousel');
+                                        const carouselItems = carousel.querySelectorAll('.carousel-item');
+                                        const prevButton = document.getElementById('carousel-prev');
+                                        const nextButton = document.getElementById('carousel-next');
+                                        const dots = document.querySelectorAll('.carousel-dot');
+                                        let currentIndex = 0;
+                                        let autoplayInterval;
+
+
+                                        // Function to update carousel position
+                                        function updateCarousel() {
+                                        carousel.scrollTo({
+                                        left: currentIndex * carousel.offsetWidth,
+                                        behavior: 'smooth'
+                                        });
+
+
+                                        // Update active dot
+                                        dots.forEach((dot, index) => {
+                                        if (index === currentIndex) {
+                                            dot.classList.add('opacity-100');
+                                            dot.classList.remove('opacity-50');
+                                        } else {
+                                            dot.classList.add('opacity-50');
+                                            dot.classList.remove('opacity-100');
+                                        }
+                                        });
+                                        }
+
+
+                                        // Next slide
+                                        function nextSlide() {
+                                        currentIndex = (currentIndex + 1) % carouselItems.length;
+                                        updateCarousel();
+                                        }
+
+
+                                        // Previous slide
+                                        function prevSlide() {
+                                        currentIndex = (currentIndex - 1 + carouselItems.length) % carouselItems.length;
+                                        updateCarousel();
+                                        }
+
+
+                                        // Initialize carousel
+                                        function initCarousel() {
+                                        // Set first dot as active
+                                        dots[0].classList.add('opacity-100');
+                                        dots[0].classList.remove('opacity-50');
+
+
+                                        // Add event listeners
+                                        prevButton.addEventListener('click', () => {
+                                        prevSlide();
+                                        resetAutoplay();
+                                        });
+
+
+                                        nextButton.addEventListener('click', () => {
+                                        nextSlide();
+                                        resetAutoplay();
+                                        });
+
+
+                                        // Add dot navigation
+                                        dots.forEach((dot, index) => {
+                                        dot.addEventListener('click', () => {
+                                            currentIndex = index;
+                                            updateCarousel();
+                                            resetAutoplay();
+                                        });
+                                        });
+
+
+                                        // Start autoplay
+                                        startAutoplay();
+
+
+                                        // Pause autoplay on hover
+                                        carousel.addEventListener('mouseenter', stopAutoplay);
+                                        carousel.addEventListener('mouseleave', startAutoplay);
+                                        }
+
+
+                                        // Autoplay functions
+                                        function startAutoplay() {
+                                        autoplayInterval = setInterval(nextSlide, 5000);
+                                        }
+
+
+                                        function stopAutoplay() {
+                                        clearInterval(autoplayInterval);
+                                        }
+
+
+                                        function resetAutoplay() {
+                                        stopAutoplay();
+                                        startAutoplay();
+                                        }
+
+
+                                        // Create a book card HTML
+                                        function createBookCard(book, isBestseller = false) {
+                                        let html = `
+                                        <div class="glass rounded-xl overflow-hidden shadow-lg card-hover animate-slide-in book-card"
+                                            data-title="${book.title.toLowerCase()}"
+                                            data-genre="${book.genre.toLowerCase()}"
+                                            style="animation-delay: 0.${book.id}s">
+                                        `;
+
+
+                                        if (isBestseller) {
+                                        html += `
+                                            <div class="relative">
+                                                <img src="${book.image}" alt="${book.title}" class="w-full h-56 object-cover">
+                                                <div class="absolute top-3 right-3 bg-accent text-white rounded-full w-12 h-12 flex items-center justify-center">
+                                                    <span class="font-bold">${book.rank}</span>
+                                                </div>
+                                            </div>
+                                        `;
+                                        } else {
+                                        html += `
+                                            <img src="${book.image}" alt="${book.title}" class="w-full h-56 object-cover">
+                                        `;
+                                        }
+
+
+                                        html += `
+                                        <div class="p-5">
+                                            <h3 class="text-lg font-bold mb-1">${book.title}</h3>
+                                            <p class="text-sm text-gray-600 mb-2">By ${book.author}</p>
+                                            <div class="flex justify-between items-center mt-4">
+                                                <span class="font-bold text-accent text-lg">$${book.price.toFixed(2)}</span>
+                                                <button class="bg-primary hover:bg-secondary transition-colors text-white px-4 py-2 rounded-lg">
+                                                    Buy Now
+                                                </button>
+                                            </div>
+                                        </div>
+                                        </div>
+                                        `;
+                                        return html;
+                                        }
+
+
+                                        // Render books to the page
+                                        function renderBooks(filteredBooks = null) {
+                                        const newArrivalsGrid = document.getElementById('new-arrivals-grid');
+                                        const bestsellersGrid = document.getElementById('bestsellers-grid');
+
+
+                                        // Clear existing books
+                                        newArrivalsGrid.innerHTML = '';
+                                        bestsellersGrid.innerHTML = '';
+
+
+                                        // Books to display
+                                        const booksToDisplay = filteredBooks || books;
+
+
+                                        // Render new arrivals
+                                        const newArrivals = booksToDisplay.filter(book => book.isNewArrival);
+                                        newArrivals.forEach(book => {
+                                        newArrivalsGrid.innerHTML += createBookCard(book, false);
+                                        });
+
+
+                                        // Render bestsellers (sorted by rank)
+                                        const bestsellers = booksToDisplay.filter(book => book.isBestseller)
+                                                                     .sort((a, b) => a.rank - b.rank);
+                                        bestsellers.forEach(book => {
+                                        bestsellersGrid.innerHTML += createBookCard(book, true);
+                                        });
+
+
+                                        // Re-attach hover effects to new cards
+                                        attachCardHoverEffects();
+
+
+                                        // Re-attach buy button functionality
+                                        attachBuyButtonHandlers();
+                                        }
+
+
+                                        // Search books by title
+                                        function searchBooks() {
+                                        const searchTerm = document.getElementById('search-input').value.toLowerCase().trim();
+                                        const genreFilter = document.getElementById('genre-filter').value;
+
+
+                                        if (!searchTerm && genreFilter === 'all') {
+                                        renderBooks(); // If both fields are empty/default, show all books
+                                        return;
+                                        }
+
+
+                                        let filteredBooks = books;
+
+
+                                        // Apply genre filter if selected
+                                        if (genreFilter !== 'all') {
+                                        filteredBooks = filteredBooks.filter(book => book.genre === genreFilter);
+                                        }
+
+
+                                        // Apply search term if entered
+                                        if (searchTerm) {
+                                        filteredBooks = filteredBooks.filter(book =>
+                                            book.title.toLowerCase().includes(searchTerm) ||
+                                            book.author.toLowerCase().includes(searchTerm)
+                                        );
+                                        }
+
+
+                                        renderBooks(filteredBooks);
+                                        }
+
+
+                                        // Book card hover animations
+                                        function attachCardHoverEffects() {
+                                        const bookCards = document.querySelectorAll('.card-hover');
+                                        bookCards.forEach(card => {
+                                        card.addEventListener('mouseenter', () => {
+                                            card.classList.add('transform', 'scale-105');
+                                            card.style.zIndex = "10";
+                                        });
+
+
+                                        card.addEventListener('mouseleave', () => {
+                                            card.classList.remove('transform', 'scale-105');
+                                            card.style.zIndex = "0";
+                                        });
+                                        });
+                                        }
+
+
+                                        // Buy buttons functionality
+                                        function attachBuyButtonHandlers() {
+                                        const buyButtons = document.querySelectorAll('button');
+                                        buyButtons.forEach(button => {
+                                        if (button.textContent.trim() === 'Buy Now') {
+                                            button.addEventListener('click', (e) => {
+                                                e.preventDefault();
+                                                const bookName = e.target.closest('.card-hover').querySelector('h3').textContent;
+                                                alert(`Book "${bookName}" added to cart!`);
+                                            });
+                                        }
+                                        });
+                                        }
+
+
+                                        // Event listeners for search and filter
+                                        document.getElementById('search-button').addEventListener('click', searchBooks);
+                                        document.getElementById('search-input').addEventListener('keyup', (e) => {
+                                        if (e.key === 'Enter') {
+                                        searchBooks();
+                                        }
+                                        });
+                                        document.getElementById('genre-filter').addEventListener('change', searchBooks);
+
+
+                                        // Intersection Observer for animation on scroll
+                                        const animateOnScroll = () => {
+                                        const observer = new IntersectionObserver((entries) => {
+                                        entries.forEach(entry => {
+                                            if (entry.isIntersecting) {
+                                                entry.target.classList.add('animate-slide-in');
+                                                observer.unobserve(entry.target);
+                                            }
+                                        });
+                                        }, { threshold: 0.1 });
+
+
+                                        document.querySelectorAll('.card-hover').forEach(el => {
+                                        observer.observe(el);
+                                        });
+                                        };
+
+
+                                        // Initialize everything when the DOM is loaded
+                                        document.addEventListener('DOMContentLoaded', () => {
+                                        initCarousel();
+                                        renderBooks();
+                                        animateOnScroll();
+                                        });
+                                        </script>
+                                        </body>
+                                        </html>
+
